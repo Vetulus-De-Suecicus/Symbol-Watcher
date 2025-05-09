@@ -1,7 +1,10 @@
 # MIT LICENSE 2025import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import yfinance as yf
 from matplotlib.animation import FuncAnimation
 
+### insert your holdings here ###
+# "SYMBOL", AMOUNT OF STOCKS INTEGER #
 holdings = {"MSFT": 57,
            "AAPL": 161,
            "IPCO.ST": 0}
@@ -24,8 +27,8 @@ def update_graphs(_):
         current_ax.fill_between(datetime_index, low, high, color="orange", alpha=0.3, label="High-Low interval")
         current_ax.fill_between(datetime_index, closing, opening, color="red", alpha=0.3, label="Close-Open interval")
         total_price += closing.iloc[-1] * holdings[ticker]
-        current_price = closing.iloc[-1] * holdings[ticker]
-        current_ax.set_title(f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_price:.2f}", fontsize=10)
+        current_total = closing.iloc[-1] * holdings[ticker]
+        current_ax.set_title(f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_total:.2f}", fontsize=10)
         current_ax.grid(True)
         ax2 = current_ax.twinx()
         ax2.bar(datetime_index, volume, color="grey", alpha=0.5, label="Volume", width=0.001)

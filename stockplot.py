@@ -22,13 +22,16 @@ def update_graphs(_):
         volume = history['Volume']
         current_ax = axes[idx]
         current_ax.clear()
+        current_ax.plot(datetime_index, opening, label="Open", color="red")
         current_ax.plot(datetime_index, closing, label="Close", color="green")
-        current_ax.plot(datetime_index, opening, label="Open", color="blue")
         current_ax.fill_between(datetime_index, low, high, color="orange", alpha=0.3, label="High-Low interval")
         current_ax.fill_between(datetime_index, closing, opening, color="red", alpha=0.3, label="Close-Open interval")
         total_value += closing.iloc[-1] * holdings[ticker]
         current_total = closing.iloc[-1] * holdings[ticker]
-        current_ax.set_title(f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_total:.2f}", fontsize=10)
+        previous_close = history['Close'].iloc[0]
+        difference = closing.iloc[-1] - previous_close
+        percentage_change = (difference / previous_close) * 100
+        current_ax.set_title(f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_total:.2f} : Diff: {difference:.2f} ({percentage_change:.2f}%)", fontsize=10)
         current_ax.grid(True)
         ax2 = current_ax.twinx()
         ax2.bar(datetime_index, volume, color="grey", alpha=0.5, label="Volume", width=0.001)
@@ -44,5 +47,5 @@ if __name__ == "__main__":
         axes = axes.flatten()
     fig.canvas.manager.set_window_title("Symbol Watcher")
     ani = FuncAnimation(fig, update_graphs, interval=120000, cache_frame_data=False)
-    plt.tight_layout(h_pad=0.5, w_pad=0.5, rect=[0, 0.03, 1, 0.95])
+    plt.tight_layout(h_pad=1, w_pad=1, rect=[0, 0.05, 0.95, 0.9])
     plt.show()

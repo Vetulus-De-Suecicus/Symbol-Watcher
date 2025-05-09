@@ -10,7 +10,7 @@ holdings = {"MSFT": 57,
            "IPCO.ST": 0}
 
 def update_graphs(_):
-    total_price = 0
+    total_value = 0
     for idx, ticker in enumerate(holdings.keys()):
         stock = yf.Ticker(ticker)
         history = stock.history(period="1d", interval="1m")
@@ -26,14 +26,14 @@ def update_graphs(_):
         current_ax.plot(datetime_index, opening, label="Open", color="blue")
         current_ax.fill_between(datetime_index, low, high, color="orange", alpha=0.3, label="High-Low interval")
         current_ax.fill_between(datetime_index, closing, opening, color="red", alpha=0.3, label="Close-Open interval")
-        total_price += closing.iloc[-1] * holdings[ticker]
+        total_value += closing.iloc[-1] * holdings[ticker]
         current_total = closing.iloc[-1] * holdings[ticker]
         current_ax.set_title(f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_total:.2f}", fontsize=10)
         current_ax.grid(True)
         ax2 = current_ax.twinx()
         ax2.bar(datetime_index, volume, color="grey", alpha=0.5, label="Volume", width=0.001)
         ax2.set_ylabel("Volume")
-    fig.suptitle(f"Total Value: {total_price:.2f}", fontsize=12)
+    fig.suptitle(f"Total Value: {total_value:.2f}", fontsize=12)
 
 if __name__ == "__main__":
     if len(holdings) == 1:

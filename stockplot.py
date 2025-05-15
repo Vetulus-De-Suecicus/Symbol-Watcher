@@ -35,8 +35,7 @@ def convert_to_display_currency(ticker):
     Convert a stock's currency to the displayed currency.
 
     Args:
-        currency_in: The input currency code (str).
-        converted_out: The value to be converted (float).
+        ticker: the symbol to get the last closed price from and convert price to displayed currency
 
     Returns:
         float: The value converted to the displayed currency.

@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 from matplotlib.animation import FuncAnimation
 
+#Currency Settings
+DISPLAYED_CURRENCY = "SEK"
+
 # Display settings
 SCREEN_DIVISION_X = 4  # If more than X stocks, divide graphs into SCREEN_DIVISION_Y columns
 SCREEN_DIVISION_Y = 2  # Number of columns to be had
@@ -27,6 +30,26 @@ holdings = {
     "AMZN": [1, 100],
 }
 
+def convert_to_display_currency(ticker):
+    """
+    Convert a stock's currency to the displayed currency.
+
+    Args:
+        currency_in: The input currency code (str).
+        converted_out: The value to be converted (float).
+
+    Returns:
+        float: The value converted to the displayed currency.
+    """
+    stock = yf.Ticker(ticker)
+    history = stock.history()
+    stocklastclosed = history['Close'].iloc[-1]
+    currencystring = DISPLAYED_CURRENCY + stock.info['currency'] + "=X"
+    currencyticker = yf.Ticker(currencystring)
+    history = currencyticker.history()
+    currencylastclosed = history['Close'].iloc[-1]
+    value = stocklastclosed / currencylastclosed
+    return value
 
 def update_graphs(_):
     """
@@ -56,7 +79,7 @@ def update_graphs(_):
     total_valchange = 0
     for idx, ticker in enumerate(holdings.keys()):
         stock = yf.Ticker(ticker)
-        history = stock.history(period="1d", interval="1m")
+        history = stock.history(period="1d", interval="1m")         
         datetime_index = history.index
         closing = history["Close"]
         opening = history["Open"]
@@ -74,9 +97,15 @@ def update_graphs(_):
             datetime_index, closing, opening, color=CLOSE_OPEN_INT_COLOUR, alpha=0.3, label="Close-Open interval"
         )
         amountholding, price = holdings[ticker]
-        total_value += closing.iloc[-1] * amountholding
-        current_total = closing.iloc[-1] * amountholding
-        purchased_difference = current_total - (amountholding * price)
+        if stock.info['currency'] != DISPLAYED_CURRENCY:
+            convertedprice = convert_to_display_currency(ticker)
+            total_value += convertedprice * amountholding
+            current_total = convertedprice * amountholding
+            purchased_difference = current_total - (amountholding * convertedprice)
+        else:
+            total_value += closing.iloc[-1] * amountholding
+            current_total = closing.iloc[-1] * amountholding
+            purchased_difference = current_total - (amountholding * price)
         total_valchange += purchased_difference
         previous_close = history["Close"].iloc[0]
         difference = closing.iloc[-1] - previous_close

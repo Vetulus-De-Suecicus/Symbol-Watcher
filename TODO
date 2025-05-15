@@ -1,0 +1,5 @@
+# TODO List for Stockplot Project
+    [#1](https://github.com/Vetulus-De-Suecicus/stockplot/issues/1)
+- [x] Create function to convert stock ticker price to displayed currency
+- [x] Implement the convert stock ticker price function into the code
+

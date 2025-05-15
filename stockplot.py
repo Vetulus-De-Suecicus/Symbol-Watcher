@@ -4,7 +4,8 @@ from matplotlib.animation import FuncAnimation
 import math
 
 ### display settings ###
-screendivision = 4 # if more than X stocks, divide graphs into 2 columns
+screendivisionx = 4 # if more than X stocks, divide graphs into variable "screendivisiony" columns
+screendivisiony = 2 # int columns to be had
 
 ### update interval ###
 updateinterval=120000 # 60seconds = 60000
@@ -68,9 +69,9 @@ if __name__ == "__main__":
     if len(holdings) == 1:
         fig, axes_obj = plt.subplots(1, 1)
         axes = [axes_obj]
-    elif len(holdings) >screendivision:
+    elif len(holdings) > screendivisionx:
         graphnrow = ((math.ceil(len(holdings)/2)))
-        fig, axes = plt.subplots(graphnrow, 2, squeeze=False)
+        fig, axes = plt.subplots(graphnrow, screendivisiony, squeeze=False)
         axes = axes.flatten()
     else:
         fig, axes = plt.subplots(len(holdings), 1, squeeze=False)

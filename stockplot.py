@@ -3,16 +3,20 @@ import yfinance as yf
 from matplotlib.animation import FuncAnimation
 import math
 
+### display settings ###
+screendivision = 4 # if more than X stocks, divide graphs into 2 columns
+
+### update interval ###
+updateinterval=120000 # 60seconds = 60000
+
 ### plot colours ###
 opencolour="red"
 closecolour="green"
 hilointcolour="orange"
 closeopenintcolour="red"
 volumecolour="grey"
-updateinterval=120000 # 60seconds = 60000
 
 ### add your holdings. amount and price of specific symbols ###
-### "SYMBOL": [AMOUNT, PRICE] ###
 holdings = {"SAAB-B.ST": [1, 500],
            "SSAB-B.ST": [1, 500],
            "^OMX": [0, 0],
@@ -64,7 +68,7 @@ if __name__ == "__main__":
     if len(holdings) == 1:
         fig, axes_obj = plt.subplots(1, 1)
         axes = [axes_obj]
-    elif len(holdings) >4:
+    elif len(holdings) >screendivision:
         graphnrow = ((math.ceil(len(holdings)/2)))
         fig, axes = plt.subplots(graphnrow, 2, squeeze=False)
         axes = axes.flatten()
@@ -75,3 +79,4 @@ if __name__ == "__main__":
     ani = FuncAnimation(fig, update_graphs, interval=updateinterval, cache_frame_data=False)
     plt.tight_layout(h_pad=1, w_pad=1, rect=[0, 0.05, 0.95, 0.9])
     plt.show()
+    

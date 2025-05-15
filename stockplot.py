@@ -101,6 +101,7 @@ def update_graphs(_):
 if __name__ == "__main__":
     print(
         f"""
+          Legend:
           Open Colour: {OPEN_COLOUR}
           Close Colour: {CLOSE_COLOUR}
           High-Low Interval Colour: {HILO_INT_COLOUR}
@@ -124,4 +125,3 @@ if __name__ == "__main__":
     )
     plt.tight_layout(h_pad=1, w_pad=1, rect=[0, 0.05, 0.95, 0.9])
     plt.show()
-    

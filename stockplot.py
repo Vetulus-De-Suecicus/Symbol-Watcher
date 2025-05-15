@@ -70,7 +70,7 @@ if __name__ == "__main__":
         fig, axes_obj = plt.subplots(1, 1)
         axes = [axes_obj]
     elif len(holdings) > screendivisionx:
-        graphnrow = ((math.ceil(len(holdings)/2)))
+        graphnrow = ((math.ceil(len(holdings)/screendivisiony)))
         fig, axes = plt.subplots(graphnrow, screendivisiony, squeeze=False)
         axes = axes.flatten()
     else:

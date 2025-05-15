@@ -1,83 +1,127 @@
+import math
 import matplotlib.pyplot as plt
 import yfinance as yf
 from matplotlib.animation import FuncAnimation
-import math
 
-### display settings ###
-screendivisionx = 4 # if more than X stocks, divide graphs into variable "screendivisiony" columns
-screendivisiony = 2 # int columns to be had
+# Display settings
+SCREEN_DIVISION_X = 4  # If more than X stocks, divide graphs into SCREEN_DIVISION_Y columns
+SCREEN_DIVISION_Y = 2  # Number of columns to be had
 
-### update interval ###
-updateinterval=120000 # 60seconds = 60000
+# Update interval (milliseconds)
+UPDATE_INTERVAL = 120_000  # 60 seconds = 60_000
 
-### plot colours ###
-opencolour="red"
-closecolour="green"
-hilointcolour="orange"
-closeopenintcolour="red"
-volumecolour="grey"
+# Plot colours
+OPEN_COLOUR = "red"
+CLOSE_COLOUR = "green"
+HILO_INT_COLOUR = "orange"
+CLOSE_OPEN_INT_COLOUR = "red"
+VOLUME_COLOUR = "grey"
 
-### add your holdings. amount and price of specific symbols ###
-holdings = {"SAAB-B.ST": [1, 500],
-           "SSAB-B.ST": [1, 500],
-           "^OMX": [0, 0],
-           "MSFT": [1,500],
-           "AAPL": [5,100],
-           "AMZN": [1, 100]}
+# Add your holdings: amount and price of specific symbols
+holdings = {
+    "SAAB-B.ST": [1, 500],
+    "SSAB-B.ST": [1, 500],
+    "^OMX": [0, 0],
+    "MSFT": [1, 500],
+    "AAPL": [5, 100],
+    "AMZN": [1, 100],
+}
+
 
 def update_graphs(_):
+    """
+    Update and redraw stock graphs for each holding.
+
+    Iterates through all tickers in the holdings dictionary, fetches the latest
+    1-day, 1-minute interval historical data using yfinance, and updates the
+    corresponding matplotlib axes with price and volume information. The function
+    plots closing and opening prices, fills the area between high and low as well
+    as close and open, and displays volume as a bar chart on a secondary y-axis.
+    It also updates the subplot titles with current price, total value, price
+    difference, percentage change, and purchase difference. The figure's main
+    title is updated with the total portfolio value and total value change.
+
+    Args:
+        _ (Any): Placeholder argument, not used.
+
+    Returns:
+        None
+
+    Notes:
+        - Assumes global variables: holdings, axes, fig, CLOSE_COLOUR, OPEN_COLOUR,
+          HILO_INT_COLOUR, CLOSE_OPEN_INT_COLOUR, VOLUME_COLOUR are defined.
+        - Intended for use in a GUI or plotting callback to refresh displayed data.
+    """
     total_value = 0
     total_valchange = 0
     for idx, ticker in enumerate(holdings.keys()):
         stock = yf.Ticker(ticker)
         history = stock.history(period="1d", interval="1m")
         datetime_index = history.index
-        closing = history['Close']
-        opening = history['Open']
-        high = history['High']
-        low = history['Low']
-        volume = history['Volume']
+        closing = history["Close"]
+        opening = history["Open"]
+        high = history["High"]
+        low = history["Low"]
+        volume = history["Volume"]
         current_ax = axes[idx]
         current_ax.clear()
-        current_ax.plot(datetime_index, closing, label="Close", color=closecolour)
-        current_ax.plot(datetime_index, opening, label="Open", color=opencolour)
-        current_ax.fill_between(datetime_index, low, high, color=hilointcolour, alpha=0.3, label="High-Low interval")
-        current_ax.fill_between(datetime_index, closing, opening, color=closeopenintcolour, alpha=0.3, label="Close-Open interval")
+        current_ax.plot(datetime_index, closing, label="Close", color=CLOSE_COLOUR)
+        current_ax.plot(datetime_index, opening, label="Open", color=OPEN_COLOUR)
+        current_ax.fill_between(
+            datetime_index, low, high, color=HILO_INT_COLOUR, alpha=0.3, label="High-Low interval"
+        )
+        current_ax.fill_between(
+            datetime_index, closing, opening, color=CLOSE_OPEN_INT_COLOUR, alpha=0.3, label="Close-Open interval"
+        )
         amountholding, price = holdings[ticker]
         total_value += closing.iloc[-1] * amountholding
         current_total = closing.iloc[-1] * amountholding
         purchased_difference = current_total - (amountholding * price)
         total_valchange += purchased_difference
-        previous_close = history['Close'].iloc[0]
+        previous_close = history["Close"].iloc[0]
         difference = closing.iloc[-1] - previous_close
         percentage_change = (difference / previous_close) * 100
-        current_ax.set_title(f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_total:.2f} : Diff: {difference:.2f} ({percentage_change:.2f}%) : Purch. Diff. {purchased_difference:.2f}", fontsize=10)
+        current_ax.set_title(
+            f"{ticker} : Close: {closing.iloc[-1]:.2f} : {current_total:.2f} : "
+            f"Diff: {difference:.2f} ({percentage_change:.2f}%) : "
+            f"Purch. Diff. {purchased_difference:.2f}",
+            fontsize=10,
+        )
         current_ax.grid(True)
         ax2 = current_ax.twinx()
-        ax2.bar(datetime_index, volume, color=volumecolour, alpha=0.5, label="Volume", width=0.001)
+        ax2.bar(
+            datetime_index, volume, color=VOLUME_COLOUR, alpha=0.5, label="Volume", width=0.001
+        )
         ax2.set_ylabel("Volume")
-    fig.suptitle(f"Total Value: {total_value:.2f} : Change: {total_valchange:.2f}", fontsize=12)
+    fig.suptitle(
+        f"Total Value: {total_value:.2f} : Change: {total_valchange:.2f}", fontsize=12
+    )
+
 
 if __name__ == "__main__":
-    print(f"""
-          Open Colour: {opencolour}
-          Close Colour: {closecolour}
-          High-Low Interval Colour: {hilointcolour}
-          Close-Open Interval Colour: {closeopenintcolour}
-          Volume Colour: {volumecolour}
-""")
+    print(
+        f"""
+          Open Colour: {OPEN_COLOUR}
+          Close Colour: {CLOSE_COLOUR}
+          High-Low Interval Colour: {HILO_INT_COLOUR}
+          Close-Open Interval Colour: {CLOSE_OPEN_INT_COLOUR}
+          Volume Colour: {VOLUME_COLOUR}
+"""
+    )
     if len(holdings) == 1:
         fig, axes_obj = plt.subplots(1, 1)
         axes = [axes_obj]
-    elif len(holdings) > screendivisionx:
-        graphnrow = ((math.ceil(len(holdings)/screendivisiony)))
-        fig, axes = plt.subplots(graphnrow, screendivisiony, squeeze=False)
+    elif len(holdings) > SCREEN_DIVISION_X:
+        graph_n_row = math.ceil(len(holdings) / SCREEN_DIVISION_Y)
+        fig, axes = plt.subplots(graph_n_row, SCREEN_DIVISION_Y, squeeze=False)
         axes = axes.flatten()
     else:
         fig, axes = plt.subplots(len(holdings), 1, squeeze=False)
         axes = axes.flatten()
     fig.canvas.manager.set_window_title("Symbol Watcher")
-    ani = FuncAnimation(fig, update_graphs, interval=updateinterval, cache_frame_data=False)
+    ani = FuncAnimation(
+        fig, update_graphs, interval=UPDATE_INTERVAL, cache_frame_data=False
+    )
     plt.tight_layout(h_pad=1, w_pad=1, rect=[0, 0.05, 0.95, 0.9])
     plt.show()
     

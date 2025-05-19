@@ -3,14 +3,19 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 from matplotlib.animation import FuncAnimation
 
-#Currency Settings
+# PERIOD is the amount of history dating back that should be retrieved, 1d = intraday, 2d = intraday + 1 day back etc.
+# INTERVAL is the granularity of the data. Only 8 days worth of 1m granularity data are allowed to be fetched per request.
+PERIOD = "1d"
+INTERVAL = "1m"
+
+# Currency Settings
 DISPLAYED_CURRENCY = "SEK"
 
 # Display settings
 SCREEN_DIVISION_X = 4  # If more than X stocks, divide graphs into SCREEN_DIVISION_Y columns
 SCREEN_DIVISION_Y = 2  # Number of columns to be had
 
-# Update interval (milliseconds)
+# Update INTERVAL (milliseconds)
 UPDATE_INTERVAL = 120_000  # 60 seconds = 60_000
 
 # Plot colours
@@ -55,7 +60,7 @@ def update_graphs(_):
     Update and redraw stock graphs for each holding.
 
     Iterates through all tickers in the holdings dictionary, fetches the latest
-    1-day, 1-minute interval historical data using yfinance, and updates the
+    1-day, 1-minute INTERVAL historical data using yfinance, and updates the
     corresponding matplotlib axes with price and volume information. The function
     plots closing and opening prices, fills the area between high and low as well
     as close and open, and displays volume as a bar chart on a secondary y-axis.
@@ -78,7 +83,7 @@ def update_graphs(_):
     total_valchange = 0
     for idx, ticker in enumerate(holdings.keys()):
         stock = yf.Ticker(ticker)
-        history = stock.history(period="1d", interval="1m")         
+        history = stock.history(period=PERIOD, interval=INTERVAL)         
         datetime_index = history.index
         closing = history["Close"]
         opening = history["Open"]
@@ -90,17 +95,19 @@ def update_graphs(_):
         current_ax.plot(datetime_index, closing, label="Close", color=CLOSE_COLOUR)
         current_ax.plot(datetime_index, opening, label="Open", color=OPEN_COLOUR)
         current_ax.fill_between(
-            datetime_index, low, high, color=HILO_INT_COLOUR, alpha=0.3, label="High-Low interval"
+            datetime_index, low, high, color=HILO_INT_COLOUR, alpha=0.3, label="High-Low INTERVAL"
         )
         current_ax.fill_between(
-            datetime_index, closing, opening, color=CLOSE_OPEN_INT_COLOUR, alpha=0.3, label="Close-Open interval"
+            datetime_index, closing, opening, color=CLOSE_OPEN_INT_COLOUR, alpha=0.3, label="Close-Open INTERVAL"
         )
         amountholding, price = holdings[ticker]
+        # converts currency to displayed currency
         if stock.info['currency'] != DISPLAYED_CURRENCY:
             convertedprice = convert_to_display_currency(ticker)
             total_value += convertedprice * amountholding
             current_total = convertedprice * amountholding
             purchased_difference = current_total - (amountholding * convertedprice)
+        # if nothing to convert, default to actual
         else:
             total_value += closing.iloc[-1] * amountholding
             current_total = closing.iloc[-1] * amountholding
@@ -132,8 +139,8 @@ if __name__ == "__main__":
           Legend:
           Open Colour: {OPEN_COLOUR}
           Close Colour: {CLOSE_COLOUR}
-          High-Low Interval Colour: {HILO_INT_COLOUR}
-          Close-Open Interval Colour: {CLOSE_OPEN_INT_COLOUR}
+          High-Low INTERVAL Colour: {HILO_INT_COLOUR}
+          Close-Open INTERVAL Colour: {CLOSE_OPEN_INT_COLOUR}
           Volume Colour: {VOLUME_COLOUR}
 """
     )
@@ -149,7 +156,7 @@ if __name__ == "__main__":
         axes = axes.flatten()
     fig.canvas.manager.set_window_title("Symbol Watcher")
     ani = FuncAnimation(
-        fig, update_graphs, interval=UPDATE_INTERVAL, cache_frame_data=False
+        fig, update_graphs, INTERVAL=UPDATE_INTERVAL, cache_frame_data=False
     )
     plt.tight_layout(h_pad=1, w_pad=1, rect=[0, 0.05, 0.95, 0.9])
     plt.show()

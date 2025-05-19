@@ -156,7 +156,7 @@ if __name__ == "__main__":
         axes = axes.flatten()
     fig.canvas.manager.set_window_title("Symbol Watcher")
     ani = FuncAnimation(
-        fig, update_graphs, INTERVAL=UPDATE_INTERVAL, cache_frame_data=False
+        fig, update_graphs, interval=UPDATE_INTERVAL, cache_frame_data=False
     )
     plt.tight_layout(h_pad=1, w_pad=1, rect=[0, 0.05, 0.95, 0.9])
     plt.show()

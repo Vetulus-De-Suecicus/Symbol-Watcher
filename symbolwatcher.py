@@ -35,7 +35,7 @@ holdings = {
     "AMZN": [1, 100],
 }
 
-def convert_to_display_currency(ticker):
+def convert_to_display_currency(ticker: str):
     """
     Convert a stock's currency to the displayed currency.
 
